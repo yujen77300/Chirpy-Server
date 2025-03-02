@@ -2,13 +2,22 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 )
 
 func main() {
 
 	mux := http.NewServeMux()
+
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
+
+	mux.Handle("/app/assets/", http.StripPrefix("/app/assets", http.FileServer(http.Dir("./assets"))))
+
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Add("Content-Type", "text/plain")
+		w.Write([]byte("OK"))
+	})
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -19,9 +28,4 @@ func main() {
 	if err := server.ListenAndServe(); err != nil {
 		fmt.Println("Server failed:", err)
 	}
-
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
-	}
-
 }
