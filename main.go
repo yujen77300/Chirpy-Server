@@ -19,12 +19,7 @@ func main() {
 
 	mux.Handle("/app/assets/", http.StripPrefix("/app/assets", http.FileServer(http.Dir("./assets"))))
 
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Header().Add("Content-Type", "text/plain")
-		w.Write([]byte("OK"))
-	})
-
+	mux.HandleFunc("/healthz", healthzHandler)
 	mux.HandleFunc("/metrics", cfg.metricsHandler)
 	mux.HandleFunc("/reset", cfg.resetHandler)
 
@@ -49,13 +44,6 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
 	hits := cfg.fileserverHits.Load()
 	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "text/plain")
+	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
 	w.Write([]byte(fmt.Sprintf("Hits: %d", hits)))
-}
-
-func (cfg *apiConfig) resetHandler(w http.ResponseWriter, r *http.Request) {
-	cfg.fileserverHits.Store(0)
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "text/plain")
-	w.Write([]byte("Hits reset to 0"))
 }
