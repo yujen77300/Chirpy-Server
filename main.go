@@ -20,8 +20,8 @@ func main() {
 	mux.Handle("/app/assets/", cfg.middlewareMetricsInc(http.StripPrefix("/app/assets", http.FileServer(http.Dir("./assets")))))
 
 	mux.HandleFunc("GET /api/healthz", healthzHandler)
-	mux.HandleFunc("GET /api/metrics", cfg.metricsHandler)
-	mux.HandleFunc("POST /api/reset", cfg.resetHandler)
+	mux.HandleFunc("GET /admin/metrics", cfg.metricsHandler)
+	mux.HandleFunc("POST /admin/reset", cfg.resetHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",
