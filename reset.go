@@ -14,7 +14,7 @@ func (cfg *apiConfig) resetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete all users from the database
-	err := cfg.db.DeleteAllUsers(r.Context())
+	err := cfg.db.Reset(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Header().Add("Content-Type", "text/plain")
