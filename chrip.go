@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/yujen77300/Chirpy-Server/internal/auth"
 	"github.com/yujen77300/Chirpy-Server/internal/database"
 
 	"github.com/google/uuid"
@@ -22,36 +23,41 @@ type response struct {
 }
 
 func (cfg *apiConfig) createChirpHandler(w http.ResponseWriter, r *http.Request) {
-	type input struct {
-		Body   string `json:"body"`
-		UserID string `json:"user_id"`
+	type parameters struct {
+		Body string `json:"body"`
 	}
 
-	var in input
-	err := json.NewDecoder(r.Body).Decode(&in)
+	tokenString, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Missing or malformed token")
+		return
+	}
+
+	userID, err := auth.ValidateJWT(tokenString, cfg.jwtSecret)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Invalid token")
+		return
+	}
+
+	params := parameters{}
+	err = json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		log.Printf("Error decoding JSON: %s", err)
 		respondWithError(w, http.StatusInternalServerError, "Something went wrong")
 		return
 	}
 
-	if len(in.Body) > 140 {
+	if len(params.Body) > 140 {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 
-	cleanedBody := replaceProfaneWords(in.Body)
+	cleanedBody := replaceProfaneWords(params.Body)
 
-	userID, err := uuid.Parse(in.UserID)
-	if err != nil {
-		log.Printf("Invalid user ID: %s", err)
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
-		return
+	chirpParam := database.CreateChirpParams{
+		Body:   cleanedBody,
+		UserID: userID,
 	}
-
-	var chirpParam database.CreateChirpParams
-	chirpParam.Body = cleanedBody
-	chirpParam.UserID = userID
 
 	chirp, err := cfg.db.CreateChirp(r.Context(), chirpParam)
 	if err != nil {
