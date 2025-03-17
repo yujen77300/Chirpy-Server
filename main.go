@@ -63,6 +63,9 @@ func main() {
 	mux.HandleFunc("GET /api/chirps", cfg.getChirpsHandler)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", cfg.getChirpByIDHandler)
 
+	mux.HandleFunc("POST /api/refresh", cfg.refreshHandler)
+		mux.HandleFunc("POST /api/revoke", cfg.revokeHanlder)
+
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
