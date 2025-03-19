@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/yujen77300/Chirpy-Server/internal/auth"
 )
 
 // Add a POST /api/polka/webhooks endpoint. It should accept a request of this shape:
@@ -25,8 +26,19 @@ func (cfg *apiConfig) polkaWebhooksHandler(w http.ResponseWriter, r *http.Reques
 		} `json:"data"`
 	}
 
+	apikey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Missing or malformed token")
+		return
+	}
+
+	if apikey != cfg.polkaKey {
+		respondWithError(w, http.StatusUnauthorized, "Invalid API key")
+		return
+	}
+
 	params := webhook{}
-	err := json.NewDecoder(r.Body).Decode(&params)
+	err = json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Something went wrong")
 		return

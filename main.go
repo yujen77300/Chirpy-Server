@@ -13,12 +13,12 @@ import (
 	"github.com/yujen77300/Chirpy-Server/internal/database"
 )
 
-// field第一個要大寫嗎
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	platform       string
 	jwtSecret      string
+	polkaKey       string
 }
 
 func main() {
@@ -36,6 +36,10 @@ func main() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is not set")
 	}
+	polkaKey := os.Getenv("POLKA_KEY")
+	if polkaKey == "" {
+		log.Fatal("POLKA_KEY environment variable is not set")
+	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -47,6 +51,7 @@ func main() {
 		db:        dbQueries,
 		platform:  platform,
 		jwtSecret: jwtSecret,
+		polkaKey:  polkaKey,
 	}
 	mux := http.NewServeMux()
 
