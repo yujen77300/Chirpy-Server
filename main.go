@@ -36,7 +36,7 @@ func main() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is not set")
 	}
-	
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("Error opening database: %s", err)
@@ -67,7 +67,9 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", cfg.revokeHanlder)
 
 	mux.HandleFunc("PUT /api/users", cfg.updateUserHandler)
-	mux.HandleFunc("DELETE /api/chirps/{chirpID}",cfg.deleteChirpByIDHandler)
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", cfg.deleteChirpByIDHandler)
+
+	mux.HandleFunc("POST /api/polka/webhooks", cfg.polkaWebhooksHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",

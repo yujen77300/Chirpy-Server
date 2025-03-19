@@ -74,6 +74,7 @@ func (cfg *apiConfig) loginHanlder(w http.ResponseWriter, r *http.Request) {
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
+			IsChirpyRed: user.IsChirpyRed,
 		},
 		Token:        accessToken,
 		RefreshToken: refreshToken,
