@@ -75,6 +75,8 @@ Example SQLC query definition:
 SELECT * FROM users
 WHERE email = $1;
 ```
+Tutorial : 
+https://docs.sqlc.dev/en/latest/tutorials/getting-started-postgresql.html
 
 #### Gooose Migrations
 
